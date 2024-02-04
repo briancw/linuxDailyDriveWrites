@@ -1,14 +1,10 @@
 #!/bin/env python3
 
-
 def getSectorSize(drivePath):
     fullPath = "/sys/block/" + drivePath + "/queue/hw_sector_size"
     with open(fullPath) as sectorSizeFile:
         sectorSize = sectorSizeFile.read()
     return(sectorSize)
-
-
-
 
 def readFile(path):
     diskArray = ['']
@@ -22,7 +18,7 @@ def getUptime(path):
     with open(path) as uptimeFile:
         for line in uptimeFile:
             uptimeArray = line.split()
-    #print(uptimeArray)
+    # print(uptimeArray)
     return(float(uptimeArray[0])/86400)
 
 def printStats(procArray, uptime):
@@ -30,6 +26,8 @@ def printStats(procArray, uptime):
 
     for drive in range((len(procArray) - 1)):
         curDrive = procArray[drive + 1][2]
+        if 'loop' in curDrive:
+            continue
         try:
             curSectorSize = getSectorSize(curDrive)
             #print(curSectorSize)
@@ -46,27 +44,13 @@ def printStats(procArray, uptime):
             print("{0:<6}{1:>10}{2:>20}{3:>20}{4:>20}".format(curDrive, dataRead,dataReadDaily,dataWritten,dataWrittenDaily))
         except:
             pass
-            #print(curDrive)
-            #print("not found")
-        #print(drive)
-
-
 
 def main():
-    #testDrive = input("what drive to test")
-    #print(getSectorSize(testDrive))
-
     uptime = getUptime('/proc/uptime')
     procArray = readFile('/proc/diskstats')
-    #print(procArray)
-    #for i in range(len(procArray)):
-    #    for j in range(len(procArray[i])):
-    #        print(procArray[i][j])
+
+    print("Uptime: " + str(round(uptime, 1)) + " days")
     printStats(procArray, uptime)
-
-
-
 
 if __name__ == '__main__':
     main()
-
